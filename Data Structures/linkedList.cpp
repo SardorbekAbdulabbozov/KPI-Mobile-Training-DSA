@@ -18,15 +18,16 @@ class LinkedList
 {
     int length;
     Node *head;
+    Node *tail;
 
 public:
     // constructor with member initializer list
-    LinkedList() : head(nullptr), length(0) {}
+    LinkedList() : head(nullptr), tail(nullptr), length(0) {}
 
     // desctructor
     ~LinkedList()
     {
-        while (head)
+        while (head != nullptr)
         {
             Node *temp = head;
             head = head->next;
@@ -37,21 +38,16 @@ public:
     // function to add element to the end
     void append(int newValue)
     {
-        if (head == nullptr)
+        Node *newNode = new Node(newValue);
+        if (tail == nullptr)
         {
-            head = new Node(newValue);
+            head = newNode;
+            tail = head;
         }
         else
         {
-            Node *newNode = new Node(newValue);
-            Node *current = head;
-
-            while (current->next != nullptr)
-            {
-                current = current->next;
-            }
-
-            current->next = newNode;
+            tail->next = newNode;
+            tail = tail->next;
         }
         length++;
     }
@@ -59,32 +55,30 @@ public:
     // function to remove element from the end
     void removeLast()
     {
-        if (head == nullptr)
+        if (tail == nullptr)
         {
             cout << "List is empty" << endl;
             return;
         }
 
-        if (head->next == nullptr)
+        if (head == tail)
         {
             delete head;
             head = nullptr;
+            tail = nullptr;
         }
         else
         {
             Node *current = head;
 
-            while (current != nullptr)
+            while (current->next != tail)
             {
-                if (current->next->next == nullptr)
-                {
-                    break;
-                }
                 current = current->next;
             }
 
-            delete current->next;
+            delete tail;
             current->next = nullptr;
+            tail = current;
         }
         length--;
     }
@@ -93,53 +87,40 @@ public:
     void insertAt(int newValue, int index)
     {
 
-        if (index < 0)
+        if (index < 0 || index > length)
         {
             cout << "ERROR: Index out of bounds" << endl;
             return;
         }
 
-        if (head == nullptr)
+        Node *newNode = new Node(newValue);
+
+        if (index == 0)
         {
-            head = new Node(newValue);
-            length++;
+            newNode->next = head;
+            head = newNode;
+            if (length == 0)
+            {
+                tail = newNode;
+            }
+        }
+        else if (index == length)
+        {
+            append(newValue);
             return;
         }
-
-        if (index < length)
+        else
         {
-            Node *newNode = new Node(newValue);
             Node *current = head;
-
             for (int i = 0; i < index - 1; i++)
             {
                 current = current->next;
             }
 
-            if (index == 0)
-            {
-                newNode->next = head;
-                head = newNode;
-                length++;
-                return;
-            }
-
-            if (current->next != nullptr)
-            {
-                newNode->next = current->next;
-            }
+            newNode->next = current->next;
             current->next = newNode;
-            length++;
         }
-        else if (index == length)
-        {
-            append(newValue);
-        }
-        else
-        {
-            cout << "ERROR: Index out of bounds" << endl;
-            return;
-        }
+        length++;
     }
 
     // function to remove element at specified position
@@ -150,7 +131,8 @@ public:
             cout << "List is empty" << endl;
             return;
         }
-        if (index < 0)
+
+        if (index < 0 || index >= length)
         {
             cout << "ERROR: Index out of bounds" << endl;
             return;
@@ -167,34 +149,37 @@ public:
             {
                 delete head;
                 head = nullptr;
+                tail = nullptr;
             }
             length--;
         }
         else
         {
-
-            if (index < length)
+            Node *current = head;
+            for (int i = 0; i < index - 1; i++)
             {
-                Node *current = head;
-                for (int i = 0; i < index - 1; i++)
-                {
-                    current = current->next;
-                }
-                Node *nextNode = current->next->next != nullptr ? current->next->next : nullptr;
-                delete current->next;
-                current->next = nextNode;
-                length--;
+                current = current->next;
             }
-            else
+            Node *nextNode = current->next->next != nullptr ? current->next->next : nullptr;
+            delete current->next;
+            current->next = nextNode;
+            if (current->next == nullptr)
             {
-                cout << "ERROR: Index out of bounds" << endl;
+                tail = current;
             }
+            length--;
         }
     }
 
     // function to traverse elements
     void traverseList()
     {
+
+        if (head == nullptr)
+        {
+            cout << "List is empty" << endl;
+            return;
+        }
         Node *current = head;
         cout << "--> Length = " << length << endl;
         while (current != nullptr)
