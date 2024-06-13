@@ -8,79 +8,66 @@ class Node {
 class LinkedList {
   int length = 0;
   Node? head;
+  Node? tail;
 
   LinkedList();
 
   void append(int newValue) {
-    if (head == null) {
-      head = Node(value: newValue);
+    Node newNode = Node(value: newValue);
+    if (tail == null) {
+      head = newNode;
+      tail = head;
     } else {
-      Node newNode = Node(value: newValue);
-      Node? current = head;
-
-      while (current?.next != null) {
-        current = current?.next;
-      }
-      current?.next = newNode;
+      tail?.next = newNode;
+      tail = newNode;
     }
     length++;
   }
 
   void insertAt(int newValue, int index) {
-    if (index < 0) {
+    if (index < 0 || index > length) {
       print("ERROR: Index out of bounds");
       return;
     }
 
-    if (head == null) {
-      head = Node(value: newValue);
-      length++;
-    } else {
-      if (index < length) {
-        Node? current = head;
-        Node newNode = Node(value: newValue);
-
-        for (int i = 0; i < index - 1; i++) {
-          current = current?.next;
-        }
-
-        if (index == 0) {
-          newNode.next = current;
-          head = newNode;
-          length++;
-          return;
-        }
-
-        if (current?.next != null) {
-          newNode.next = current?.next;
-        }
-        current?.next = newNode;
-        length++;
-      } else if (index == length) {
-        append(newValue);
-      } else {
-        print("ERROR: Index out of bounds");
-        return;
+    if (index == 0) {
+      Node newNode = Node(value: newValue, next: head);
+      head = newNode;
+      if (length == 0) {
+        tail = newNode;
       }
+    } else if (index == length) {
+      append(newValue);
+      return;
+    } else {
+      Node newNode = Node(value: newValue);
+      Node? current = head;
+      for (int i = 0; i < index - 1; i++) {
+        current = current?.next;
+      }
+      newNode.next = current?.next;
+      current?.next = newNode;
     }
+    length++;
   }
 
   void removeLast() {
-    if (head == null) {
+    if (tail == null) {
       print("List is empty");
-    } else if (head?.next == null) {
+      return;
+    }
+    if (head == tail) {
       head = null;
+      tail = null;
     } else {
       Node? current = head;
 
-      while (current != null) {
-        if (current.next?.next == null) {
-          break;
-        }
-        current = current.next;
+      while (current?.next != tail) {
+        current = current?.next;
       }
 
       current?.next = null;
+      tail = current;
     }
     length--;
   }
@@ -90,31 +77,35 @@ class LinkedList {
       print("List is empty");
       return;
     }
-    if (index < 0) {
+    if (index < 0 || index >= length) {
       print("ERROR: Index out of bounds");
       return;
-    } else if (index == 0) {
-      if (head?.next != null) {
-        head = head?.next;
-      } else {
-        head = null;
+    }
+
+    if (index == 0) {
+      head = head?.next;
+      if (head == null) {
+        tail = null;
       }
       length--;
     } else {
-      if (index < length) {
-        Node? current = head;
-        for (int i = 0; i < index - 1; i++) {
-          current = current?.next;
-        }
-        current?.next = current.next?.next != null ? current.next?.next : null;
-        length--;
-      } else {
-        print("ERROR: Index out of bounds");
+      Node? current = head;
+      for (int i = 0; i < index - 1; i++) {
+        current = current?.next;
       }
+      current?.next = current.next?.next;
+      if (current?.next == null) {
+        tail = current;
+      }
+      length--;
     }
   }
 
   void traverseList() {
+    if (head == null) {
+      print("List is empty");
+      return;
+    }
     Node? current = head;
 
     print("--> Length = ${length}");
